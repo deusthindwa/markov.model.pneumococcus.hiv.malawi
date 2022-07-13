@@ -1,0 +1,70 @@
+#written by Deus
+#01/08/2022
+#pneumococcal carriage ad serotype dynamics in HIV-infected adults in the infant PCV era
+
+#====================================================================
+
+#select potential covariates and outcomes for SIS markov modelling
+spn_model <- 
+  spn_fup %>%
+  mutate(dys = day,
+         
+         state = if_else(serogroup == "None", 1L, 
+                         if_else(serogroup == "VT", 2L, 3L)),
+         
+         nochild = if_else(nochild == 1, "1child", "2+child"),
+         
+         abx = if_else(abx == 1, "taken", 
+                       if_else(abx == 0, "nottaken", NA_character_)),
+         
+         cd4 = if_else(cd4 <= 200, "low", #categorised similarly for HIVpos and HIVneg?
+                       if_else(cd4 > 200 & cd4 <= 500, "medium", 
+                               if_else(cd4 > 500, "high", NA_character_))),
+         
+         artdur = if_else(hiv == "HIV-", "none",
+                          if_else(artdur <=3, "short",  
+                                  if_else(artdur > 3 & artdur <= 25, "long", NA_character_))),
+                          
+         dens = if_else(carr == 0, "none",
+                        if_else(dens <= 1675, "low", #1st quantile
+                                if_else(dens > 1675 & dens <= 1206000000, "high", NA_character_))), #2nd quantile
+         
+         ses = if_else(ses <= 3, "Low", 
+                       if_else(ses > 3 & ses <=15, "high", NA_character_)),
+
+         agegp = if_else(age >= 18 & age <= 24, "18-24", 
+                         if_else(age > 24 & age <= 34, "25-34", 
+                                 if_else(age > 34 & age <= 45, "35-45", NA_character_))),
+         
+         season = if_else(month(date) >= 5 & month(date) <= 10, "cooldry", 
+                          if_else(month(date) <= 4, "hotwet", 
+                                  if_else(month(date) > 10, "hotwet", NA_character_)))
+      ) %>%
+  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild)
+
+#====================================================================
+
+# show transition frequency
+spn_model <- arrange(spn_model, pid, dys)
+statetable.msm(state, pid, data = spn_model)
+
+#initiate transition intensity matrix Q
+spn_Qmatrix <- rbind(c(0.03, 0.12, 0.26),
+                  c(0.26, 0.74, 0.0), 
+                  c(0.15, 0.00, 0.35))
+
+rownames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
+colnames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
+
+spn_Qmatrix
+
+#====================================================================
+
+#run the Markov model
+spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
+                qmatrix = spn_Qmatrix,
+                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + season + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
+                                  "1-3" = ~ hiv + agegp + sex + nochild + season + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
+                pci = c(60, 120, 180, 240),
+                opt.method = "bobyqa", control = list(maxfun = 1000000))
+

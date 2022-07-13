@@ -1,9 +1,11 @@
-#written by Lusako and Deus
-#01/03/2022
-#pneumococcal carriage in HIV-infected adults in PCV era
+#written by Deus
+#01/08/2022
+#pneumococcal carriage ad serotype dynamics in HIV-infected adults in the infant PCV era
+
+#====================================================================
 
 A <- 
-  pneumov %>%
+  spn_fup %>%
   ungroup() %>%
   group_by(vday, hiv, serogroup) %>%
   tally() %>%
@@ -21,7 +23,7 @@ A <-
   geom_ribbon(aes(x = vday, y = prev, group = hivst, fill = hivst, color = hivst, ymin = obs_lci, ymax = obs_uci), alpha = 0.2, size = 0.1) +
   #scale_y_continuous(breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   ylim(0, 1) +
-  labs(title="A", x = "Visit number", y = "Carriage prevelance") +
+  labs(title="A", x = "Visit number", y = "Adult carriage prevelance") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme(legend.text=element_text(size = 12), legend.title = element_text(size = 12)) +
   theme_bw(base_size = 14, base_family = "Lato") + 
@@ -31,7 +33,7 @@ A <-
 
 
 X <-
-  pneumov %>%
+  spn_fup %>%
   ungroup() %>%
   group_by(hiv, serogroup) %>%
   tally() %>%
@@ -57,7 +59,7 @@ X <-
 
 
 B <- 
-  pneumov %>%
+  spn_fup %>%
   ungroup() %>%
   mutate(nochildx = if_else(nochild == 1, "1 child", "2+ children")) %>%
   group_by(hiv, nochildx, serogroup) %>%
@@ -75,7 +77,7 @@ B <-
   geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
   facet_grid(.~nochildx) +
   ylim(0, 1) +
-  labs(title="B", x = "Number of children in the household", y = "Carriage prevalence") +
+  labs(title="B", x = "Number of children in the household", y = "Adult carriage prevalence") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme_bw(base_size = 14, base_family = "Lato") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
@@ -84,7 +86,7 @@ B <-
 
 
 C <- 
-  pneumov %>%
+  spn_fup %>%
   ungroup() %>%
   group_by(hiv, sex, serogroup) %>%
   tally() %>%
@@ -101,7 +103,7 @@ C <-
   geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
   facet_grid(.~sex) +
   ylim(0, 1) +
-  labs(title="C", x = "Sex", y = "Carriage prevalence") +
+  labs(title="C", x = "Sex", y = "Adult carriage prevalence") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme_bw(base_size = 14, base_family = "Lato") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
@@ -110,7 +112,7 @@ C <-
 
 
 D <- 
-  pneumov %>%
+  spn_fup %>%
   ungroup() %>%
   filter(!is.na(age), serogroup != "None") %>%
   mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
@@ -129,7 +131,7 @@ D <-
 
 
 E <- 
-  pneumov %>%
+  spn_fup %>%
   ungroup() %>%
   filter(!is.na(dens), serogroup != "None") %>%
   mutate(hivst = if_else(hiv=="HIV-" & serogroup == "VT", "VT, HIV-",
@@ -147,7 +149,8 @@ E <-
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
 
-F <- pneumov %>%
+F <- 
+  spn_fup %>%
   ungroup() %>%
   filter(!is.na(artdur), serogroup != "None") %>%
   group_by(serogroup, artdur)  %>%
@@ -164,7 +167,8 @@ F <- pneumov %>%
   scale_fill_manual("", values = c("NVT" = "#7CAE00", "VT" = "#C77CFF"))
 
 
-Y <- pneumov %>%
+Y <- 
+  spn_fup %>%
   ungroup() %>%
   filter(!is.na(artdur), serogroup != "None") %>%
   
@@ -179,7 +183,8 @@ Y <- pneumov %>%
   scale_fill_manual("", values = c("NVT" = "#7CAE00", "VT" = "#C77CFF"))
 
 
-G <- pneumov %>%
+G <- 
+  spn_fup %>%
   ungroup() %>%
   filter(!is.na(cd4), serogroup != "None", hiv == "HIV+ART+") %>%
   group_by(hiv, serogroup, cd4)  %>%
@@ -196,7 +201,8 @@ G <- pneumov %>%
   scale_fill_manual("", values = c("NVT" = "#7CAE00", "VT" = "#C77CFF"))
 
 
-Z <- pneumov %>%
+Z <- 
+  spn_fup %>%
   ungroup() %>%
   filter(!is.na(cd4), serogroup != "None") %>%
   
@@ -216,5 +222,5 @@ ggsave(here("output", "Fig1_carriage_char.png"),
          (( D | E | F | inset_element(Y, right = 0.95, left = 0.55, bottom = 0.4, top = 0.99)) | (G| inset_element(Z, right = 0.95, left = 0.55, bottom = 0.4, top = 0.99))),
        width = 21, height = 16, unit="in", dpi = 300)
 
-#delete individual plots
+#delete individual plots after saving above
 rm(A, B, C, D, E, F, G, X, Y, Z)

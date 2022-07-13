@@ -1,20 +1,18 @@
-#written by Lusako and Deus
-#01/03/2022
-#pneumococcal carriage in HIV-infected adults in PCV era
+#written by Deus
+#01/08/2022
+#pneumococcal carriage ad serotype dynamics in HIV-infected adults in the infant PCV era
 
-#load packages
-pacman::p_load(char = c("lubridate","gtsummary", "tidyverse", "dplyr", "here", "rio", "scales", "boot", 
-                        "magrittr",  "mvtnorm", "zoo", "patchwork", "mgcv", "PropCIs", "writexl", 
-                        "reshape2", "growthcurver","purrr", "msm", "minqa", "ggridges", "msm", "lmtest", "timetk", "ggbreak",
-                        "plotrix", "ggpubr"))
+#====================================================================
 
-#importing data
-pneumo <- import(here("data", "pneumo.xlsx")) %>%
+#import spn patient level baseline and follow up data
+spn_overall <- 
+  import(here("data", "pneumo.xlsx")) %>%
   rowwise() %>%
   mutate(ses = sum(watch1, radio1, bank1, ironic1, sew1, mattress1, bed1, bike1, moto1, car1, mobil1, cd1, fanelec1, netyn1, tv1, fridge1), na.rm = TRUE)
 
 #baseline data manipulation
-pneumob <- pneumo %>%
+spn_baseline <- 
+  spn_overall %>%
   select(ParticipantID, visit_day0, visit_date0, ART_start_date0, HIV_status0, serotype0, sex0, no_und0, density1, cd4_count1, ses, age0, Takenabx1) %>% 
   mutate(visit = date(visit_date0), 
          ART_start_date0 = date(ART_start_date0), 
@@ -33,37 +31,43 @@ pneumob <- pneumo %>%
          "abx" = "Takenabx1") %>%
   select(pid, dens, sex, age, nochild, ses, hiv, artdur, cd4, serotype, abx)
 
-#check serotype
-pneumob <- pneumob %>% ungroup()
-pneumob <- pneumob %>% 
+#group baseline serotypes into VT and NVT
+spn_baseline <- 
+  spn_baseline %>% 
+  ungroup() %>%
   mutate(serotype = if_else(serotype == 99, NA_character_, 
                             if_else(!is.na(serotype), serotype, NA_character_)),
          serogroup = if_else(serotype %in% c("1", "3", "4", "5", "6A", "6B", "7F ", "9V", "9V  n 3", "14", "18C", "19A", "19F", "23F") == TRUE, "VT", 
                              if_else(!is.na(serotype), "NVT", "None")))
 
+#====================================================================
+
 #baseline demographics
-pneumob %>%
-  mutate(nochild = if_else(nochild == 1, "1 child", "2+ children"),
-         agegp = if_else(age >= 18 & age <= 25, "18-25", 
-                if_else(age > 25 & age <= 35, "26-35", 
-                        if_else(age > 35, "36-45", NA_character_))))%>%
-  select(dens, sex, agegp, nochild, ses, hiv, cd4, serogroup) %>%
-  rename("density (CFU/ml)" = "dens", 
-         "number of children" = "nochild",
-         "social economic status" = "ses",
-         "cd4 count (cells/µl)" = "cd4",
-         "age group" = "agegp") %>%
-  tbl_summary(by = hiv, missing = "no") %>% 
-  add_p() %>% 
-  add_overall() %>% 
-  #add_ci(pattern = "{stat} ({ci})") %>% 
-  add_n() %>% 
-  bold_labels()
+#pneumob %>%
+#  mutate(nochild = if_else(nochild == 1, "1 child", "2+ children"),
+#         agegp = if_else(age >= 18 & age <= 25, "18-25", 
+#                if_else(age > 25 & age <= 35, "26-35", 
+#                        if_else(age > 35, "36-45", NA_character_))))%>%
+#  select(dens, sex, agegp, nochild, ses, hiv, cd4, serogroup) %>%
+#  rename("density (CFU/ml)" = "dens", 
+#         "number of children" = "nochild",
+#         "social economic status" = "ses",
+#         "cd4 count (cells/µl)" = "cd4",
+#         "age group" = "agegp") %>%
+#  tbl_summary(by = hiv, missing = "no") %>% 
+#  add_p() %>% 
+#  add_overall() %>% 
+#  #add_ci(pattern = "{stat} ({ci})") %>% 
+#  add_n() %>% 
+#  bold_labels()
 
 #Regression Models for density
 
-#follow up data manipulation
-v0 <- pneumo %>%
+#====================================================================
+
+#follow up sampling data manipulation
+v0 <- 
+  spn_overall %>%
   select(ParticipantID, visit_day0, visit_date0, ART_start_date0, HIV_status0, serotype0, sex0, no_und0, ses, age0, lab_ID0) %>% 
   mutate(density0 = NA,
          Takenabx0 = NA,
@@ -87,8 +91,10 @@ v0 <- pneumo %>%
          "Lab" = "lab_ID0") %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)
 
+#====================================================================
 
-v1 <- pneumo %>%
+v1 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date1, ART_start_date0, HIV_status0, serotype1, density1, cd4_count1, sex0, no_und0, ses, age0, lab_ID1, Takenabx1) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date1 = date(visit_date1), 
@@ -111,8 +117,10 @@ v1 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx) %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v2 <- pneumo %>%
+v2 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date2, ART_start_date0, HIV_status0, serotype2, density2, sex0, no_und0, ses, age0, lab_ID2, Takenabx2) %>% 
   mutate(cd4 = NA,
          visit_date0 = date(visit_date0), 
@@ -135,8 +143,10 @@ v2 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v3 <- pneumo %>%
+v3 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date3, ART_start_date0, HIV_status0, serotype3, density3, sex0, no_und0, ses, age0, lab_ID3, Takenabx3) %>% 
   mutate(cd4 = NA,
          visit_date0 = date(visit_date0), 
@@ -159,8 +169,10 @@ v3 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v4 <- pneumo %>%
+v4 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date4, ART_start_date0, HIV_status0, serotype4, density4, sex0, no_und0, ses, age0, lab_ID4, Takenabx4) %>% 
   mutate(cd4 = NA,
          visit_date0 = date(visit_date0), 
@@ -183,8 +195,10 @@ v4 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v5 <- pneumo %>%
+v5 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date5, ART_start_date0, HIV_status0, serotype5, density5, cd4_count5, sex0, no_und0, ses, age0, lab_ID5, Takenabx5) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date5 = date(visit_date5), 
@@ -207,8 +221,10 @@ v5 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v6 <- pneumo %>%
+v6 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date6, ART_start_date0, HIV_status0, serotype6, density6, cd4_count6, sex0, no_und0, ses, age0, lab_ID6, Takenabx6) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date6 = date(visit_date6), 
@@ -231,8 +247,10 @@ v6 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v7 <- pneumo %>%
+v7 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date7, ART_start_date0, HIV_status0, serotype7, density7, cd4_count7, sex0, no_und0, ses, age0, lab_ID7, Takenabx7) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date7 = date(visit_date7), 
@@ -255,8 +273,10 @@ v7 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v8 <- pneumo %>%
+v8 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date8, ART_start_date0, HIV_status0, serotype8, density8, cd4_count8, sex0, no_und0, ses, age0, lab_ID8, Takenabx8) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date8 = date(visit_date8), 
@@ -279,8 +299,10 @@ v8 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v9 <- pneumo %>%
+v9 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date9, ART_start_date0, HIV_status0, serotype9, density9, cd4_count9, sex0, no_und0, ses, age0, lab_ID9, Takenabx9) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date9 = date(visit_date9), 
@@ -303,8 +325,10 @@ v9 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v10 <- pneumo %>%
+v10 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date10, ART_start_date0, HIV_status0, serotype10, density10, cd4_count10, sex0, no_und0, ses, age0, lab_ID10, Takenabx10) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date10 = date(visit_date10), 
@@ -327,8 +351,10 @@ v10 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v11 <- pneumo %>%
+v11 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date11, ART_start_date0, HIV_status0, serotype11, density11, cd4_count11, sex0, no_und0, ses, age0, lab_ID11, Takenabx11) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date11 = date(visit_date11), 
@@ -351,8 +377,10 @@ v11 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v12 <- pneumo %>%
+v12 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date12, ART_start_date0, HIV_status0, serotype12, density12, cd4_count12, sex0, no_und0, ses, age0, lab_ID12, Takenabx12) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date12 = date(visit_date12), 
@@ -375,8 +403,10 @@ v12 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v13 <- pneumo %>%
+v13 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date13, ART_start_date0, HIV_status0, serotype13, density13, cd4_count13, sex0, no_und0, ses, age0, lab_ID13, Takenabx13) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date13 = date(visit_date13), 
@@ -399,8 +429,10 @@ v13 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v14 <- pneumo %>%
+v14 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date14, ART_start_date0, HIV_status0, serotype14, density14, cd4_count14, sex0, no_und0, ses, age0, lab_ID14, Takenabx14) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date14 = date(visit_date14), 
@@ -423,8 +455,10 @@ v14 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v15 <- pneumo %>%
+v15 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date15, ART_start_date0, HIV_status0, serotype15, density15, cd4_count15, sex0, no_und0, ses, age0, lab_ID15, Takenabx15) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date15 = date(visit_date15), 
@@ -447,8 +481,10 @@ v15 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
+#====================================================================
 
-v16 <- pneumo %>%
+v16 <- 
+  spn_overall %>%
   select(ParticipantID, visit_date0, visit_date16, ART_start_date0, HIV_status0, serotype16, density16, cd4_count16, sex0, no_und0, ses, age0, lab_ID16, Takenabx16) %>% 
   mutate(visit_date0 = date(visit_date0), 
          visit_date16 = date(visit_date16), 
@@ -471,24 +507,23 @@ v16 <- pneumo %>%
   select(pid, vday, day, date, carr, dens, sex, age,  nochild, ses, hiv, artdur, cd4, serotype, abx)  %>%
   filter(!is.na(carr))
 
-#combine all visits
-pneumov <- rbind(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16)
+#====================================================================
 
-#check serotype
-pneumov <- pneumov %>% ungroup()
-pneumov <- pneumov %>% 
+#combine all spn sampling visits
+spn_fup <- rbind(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16)
+
+#group visit serotypes into VT and NVT
+spn_fup <- 
+  spn_fup %>% 
+  ungroup() %>%
   mutate(serotype = if_else(serotype == 99, NA_character_, 
                           if_else(!is.na(serotype), serotype, NA_character_)),
          serogroup = if_else(serotype %in% c("1", "3", "4", "5", "6A", "6B", "7F ", "9V", "9V  n 3", "14", "18C", "19A", "19F", "23F") == TRUE, "VT", 
                              if_else(!is.na(serotype), "NVT", "None")))
 
-#delete individual time series datasets
-rm(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16)
+#delete individual fup spn datasets to remain with a merged fup dataset
+rm(list= ls()[! (ls() %in% c( "spn_baseline", "spn_fup", "spn_overall"))])
 
 #modify visit day for two individuals
 #pneumov$day[pneumov$vday == 7 & pneumov$pid == "PD101J"] <- 94
 #pneumov$day[pneumov$vday == 1 & pneumov$pid == "PD1253"] <- 4
-
-  
-
-
