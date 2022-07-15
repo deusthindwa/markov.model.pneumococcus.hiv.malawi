@@ -9,8 +9,8 @@ hazard.msm(spn_modelfit, hazard.scale = 1, cl = 0.95)
 #====================================================================
 
 #acquisition probability
-p.modela <- pmatrix.msm(spn_modelfit, t = 1, covariates = list(hiv = "HIV-"), ci = "normal", cl = 0.95)
-p.modelb <- pmatrix.msm(spn_modelfit, t = 1, covariates = list(hiv = "HIV+ART+"), ci = "normal" , cl = 0.95)
+p.modela <- pmatrix.msm(spn_modelfit, t = 1, covariates = list(hiv = "HIV-"), ci = "bootstrap", cl = 0.95)
+p.modelb <- pmatrix.msm(spn_modelfit, t = 1, covariates = list(hiv = "HIV+ART+"), ci = "boostrap" , cl = 0.95)
 
 pneumo.es0 <- data.frame("hivst" = c("VT, HIV-","VT, HIV+ART"))
 pneumo.es0$carry.est <- c(p.modela$estimates[1,2], p.modelb$estimates[1,2])
