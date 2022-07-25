@@ -29,7 +29,7 @@ spn_model <-
                         if_else(dens <= 1675, "low", #1st quantile
                                 if_else(dens > 1675 & dens <= 1206000000, "high", NA_character_))), #2nd quantile
          
-         ses = if_else(ses <= 3, "Low", 
+         ses = if_else(ses <= 3, "low", 
                        if_else(ses > 3 & ses <=15, "high", NA_character_)),
 
          agegp = if_else(age >= 18 & age <= 24, "18-24", 
@@ -40,7 +40,7 @@ spn_model <-
                           if_else(month(date) <= 4, "hotwet", 
                                   if_else(month(date) > 10, "hotwet", NA_character_)))
       ) %>%
-  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild)
+  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild, serotype)
 
 #====================================================================
 
@@ -50,7 +50,7 @@ statetable.msm(state, pid, data = spn_model)
 
 #initiate transition intensity matrix Q
 spn_Qmatrix <- rbind(c(0.03, 0.12, 0.26),
-                  c(0.26, 0.74, 0.0), 
+                  c(0.26, 0.74, 0.00), 
                   c(0.15, 0.00, 0.35))
 
 rownames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
@@ -63,8 +63,56 @@ spn_Qmatrix
 #run the Markov model
 spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
                 qmatrix = spn_Qmatrix,
-                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + season + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
-                                  "1-3" = ~ hiv + agegp + sex + nochild + season + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
+                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
+                                  "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
                 pci = c(60, 120, 180, 240),
                 opt.method = "bobyqa", control = list(maxfun = 1000000))
+
+
+#====================================================================
+#====================================================================
+
+spn_model <- 
+  spn_model %>%
+  mutate(mstate = if_else(is.na(serotype), 1L,
+                          if_else(serotype == "3", 2L,
+                                  if_else(serotype == "6A", 3L,
+                                          if_else(serotype == "6B", 3L,
+                                                  if_else(serotype == "9V", 4L,
+                                                          if_else(serotype == "19A", 5L,
+                                                                  if_else(serotype == "19F", 5L,
+                                                                          if_else(serotype %in% c("4", "5", "7F", "14", "18C", "23F"), 6L, 7L)))))))))
+
+# show transition frequency
+spn_model <- arrange(spn_model, pid, dys)
+statetable.msm(mstate, pid, data = spn_model)
+
+#initiate transition intensity matrix Q
+spn_Qmatrix <- rbind(c(0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26),
+                     c(0.26, 0.26, 0.00, 0.00, 0.00, 0.00, 0.00), 
+                     c(0.26, 0.00, 0.26, 0.00, 0.00, 0.00, 0.00),
+                     c(0.26, 0.00, 0.00, 0.26, 0.00, 0.00, 0.00),
+                     c(0.26, 0.00, 0.00, 0.00, 0.26, 0.00, 0.00),
+                     c(0.26, 0.00, 0.00, 0.00, 0.00, 0.26, 0.00),
+                     c(0.26, 0.00, 0.00, 0.00, 0.00, 0.00, 0.26))
+
+rownames(spn_Qmatrix) <- c("clear", "s3", "s6", "9", "s19", "vt", "nvt")
+colnames(spn_Qmatrix) <- c("clear", "s3", "s6", "9", "s19", "vt", "nvt")
+
+spn_Qmatrix
+
+#====================================================================
+
+#run the Markov model
+spn_modelfit <- msm(mstate ~ dys, subject = pid, data = spn_model,
+                    qmatrix = spn_Qmatrix,
+                    covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
+                                      "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx,
+                                      "1-4" = ~ hiv + agegp + sex + nochild + ses, "4-1" =~ hiv + agegp + sex + dens + abx,
+                                      "1-5" = ~ hiv + agegp + sex + nochild + ses, "5-1" =~ hiv + agegp + sex + dens + abx,
+                                      "1-6" = ~ hiv + agegp + sex + nochild + ses, "6-1" =~ hiv + agegp + sex + dens + abx,
+                                      "1-7" = ~ hiv + agegp + sex + nochild + ses, "7-1" =~ hiv + agegp + sex + dens + abx),
+                    
+                    #pci = c(60, 120, 180, 240),
+                    opt.method = "bobyqa", control = list(maxfun = 1000000))
 

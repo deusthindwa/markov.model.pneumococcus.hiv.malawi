@@ -22,4 +22,10 @@ source(here("script", "2_carriage_char.R"))
 source(here("script", "3_markov_modelfit.R"))
 
 #run multiple chains Markov model for convergence and check model fit 
-source(here("script", "4_markov_convergence.R"))
+source(here("script", "4_model_convergence.R"))
+
+#run multiple chains Markov model for convergence and check model fit 
+source(here("script", "5_acquisition-rates.R"))
+
+
+
