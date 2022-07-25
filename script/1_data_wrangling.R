@@ -523,7 +523,3 @@ spn_fup <-
 
 #delete individual fup spn datasets to remain with a merged fup dataset
 rm(list= ls()[! (ls() %in% c( "spn_baseline", "spn_fup", "spn_overall"))])
-
-#modify visit day for two individuals
-#pneumov$day[pneumov$vday == 7 & pneumov$pid == "PD101J"] <- 94
-#pneumov$day[pneumov$vday == 1 & pneumov$pid == "PD1253"] <- 4

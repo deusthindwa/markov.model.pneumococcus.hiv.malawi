@@ -18,14 +18,15 @@ source(here("script", "1_data_wrangling.R"))
 #characterising spn carriage at baseline
 source(here("script", "2_carriage_char.R"))
 
-#run SIS model structure in a Markov modelling framework
+#run SIS Markov model in a Markov modelling framework
 source(here("script", "3_markov_modelfit.R"))
 
-#run multiple chains Markov model for convergence and check model fit 
+#rerun multiple chains SIS Markov model for convergence and model fit check
 source(here("script", "4_model_convergence.R"))
 
-#run multiple chains Markov model for convergence and check model fit 
-source(here("script", "5_acquisition-rates.R"))
+#use SIS Markov model to estimate acquisition and clearance of carriage 
+source(here("script", "5_carriage_acq_dur.R"))
 
-
+#use SIS Markov model to estimate the number of carriage episodes 
+source(here("script", "6_carriage_episodes.R"))
 

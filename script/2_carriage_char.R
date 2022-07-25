@@ -21,8 +21,7 @@ A <-
   geom_point(aes(x = vday, y = prev, color = hivst, size = n), shape = 1) +
   geom_line(aes(x = vday, y = prev, color = hivst), size = 1.5) + 
   geom_ribbon(aes(x = vday, y = prev, group = hivst, fill = hivst, color = hivst, ymin = obs_lci, ymax = obs_uci), alpha = 0.2, size = 0.1) +
-  #scale_y_continuous(breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
-  ylim(0, 1) +
+  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   labs(title="A", x = "Visit number", y = "Adult carriage prevelance") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme(legend.text=element_text(size = 12), legend.title = element_text(size = 12)) +
@@ -48,8 +47,7 @@ X <-
   geom_bar(stat = "identity", position = "dodge", fill = "white", width = 0.8, size = 1) +
   geom_text(aes(label = n), position = position_dodge(0.9), size = 5, hjust = -1.8) +
   geom_errorbar(aes(xmin = obs_lci, xmax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
-  #scale_x_continuous(breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
-  xlim(0,1) +
+  scale_x_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   labs(title="a", x = "Total carriage prevalence", y = "") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 12), axis.text.y = element_text(face = "bold", size = 12)) +
   theme_bw(base_size = 14, base_family = "Lato") +
@@ -76,8 +74,8 @@ B <-
   geom_text(aes(label = n), position = position_dodge(0.9), size = 5, vjust = -4.5) +
   geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
   facet_grid(.~nochildx) +
-  ylim(0, 1) +
-  labs(title="B", x = "Number of children in the household", y = "Adult carriage prevalence") +
+  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
+  labs(title="B", x = "Number of children in the household", y = "") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme_bw(base_size = 14, base_family = "Lato") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
@@ -102,8 +100,8 @@ C <-
   geom_text(aes(label = n), position = position_dodge(0.9), size = 5, vjust = -4.5) +
   geom_errorbar(aes(ymin = obs_lci, ymax = obs_uci), width = 0.2, position = position_dodge(0.9), size = 0.8) +
   facet_grid(.~sex) +
-  ylim(0, 1) +
-  labs(title="C", x = "Sex", y = "Adult carriage prevalence") +
+  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
+  labs(title="C", x = "Sex", y = "") +
   theme(plot.title = element_text(size = 20), axis.text.x = element_text(face = "bold", size = 14), axis.text.y = element_text(face = "bold", size = 14)) +
   theme_bw(base_size = 14, base_family = "Lato") +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
