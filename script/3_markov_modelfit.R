@@ -7,38 +7,47 @@
 #select potential covariates and outcomes for SIS markov modelling
 spn_model <- 
   spn_fup %>%
-  mutate(dys = day,
+  mutate(pid = pid,
          
-         state = if_else(serogroup == "None", 1L, 
-                         if_else(serogroup == "VT", 2L, 3L)),
+         dys = day,
          
-         nochild = if_else(nochild == 1, "1child", "2+child"),
+         vday = as.integer(vday),
          
-         abx = if_else(abx == 1, "taken", 
-                       if_else(abx == 0, "nottaken", NA_character_)),
+         state = as.integer(if_else(serogroup == "None", 1L, 
+                                    if_else(serogroup == "VT", 2L, 3L))),
          
-         cd4 = if_else(cd4 <= 200, "low", #categorised similarly for HIVpos and HIVneg?
+         sex = as.factor(sex),
+         
+         agegp = as.factor(if_else(age >= 18 & age <= 24, "18-24", 
+                                   if_else(age > 24 & age <= 34, "25-34", 
+                                           if_else(age > 34 & age <= 45, "35-45", NA_character_)))),
+         
+         hiv = as.factor(hiv),
+         
+         artdur = as.factor(if_else(hiv == "HIV-", "none",
+                                    if_else(artdur <=3, "short",  
+                                            if_else(artdur > 3 & artdur <= 25, "long", NA_character_)))),
+         
+         cd4 = as.factor(if_else(cd4 <= 200, "low", #categorised similarly for HIVpos and HIVneg?
                        if_else(cd4 > 200 & cd4 <= 500, "medium", 
-                               if_else(cd4 > 500, "high", NA_character_))),
-         
-         artdur = if_else(hiv == "HIV-", "none",
-                          if_else(artdur <=3, "short",  
-                                  if_else(artdur > 3 & artdur <= 25, "long", NA_character_))),
+                               if_else(cd4 > 500, "high", NA_character_)))),
                           
-         dens = if_else(carr == 0, "none",
+         dens = as.factor(if_else(carr == 0, "none",
                         if_else(dens <= 1675, "low", #1st quantile
-                                if_else(dens > 1675 & dens <= 1206000000, "high", NA_character_))), #2nd quantile
-         
-         ses = if_else(ses <= 3, "low", 
-                       if_else(ses > 3 & ses <=15, "high", NA_character_)),
+                                if_else(dens > 1675 & dens <= 1206000000, "high", NA_character_)))), #2nd quantile
 
-         agegp = if_else(age >= 18 & age <= 24, "18-24", 
-                         if_else(age > 24 & age <= 34, "25-34", 
-                                 if_else(age > 34 & age <= 45, "35-45", NA_character_))),
+         season = as.factor(if_else(month(date) >= 5 & month(date) <= 10, "cooldry", 
+                                    if_else(month(date) <= 4, "hotwet", 
+                                            if_else(month(date) > 10, "hotwet", NA_character_)))),
          
-         season = if_else(month(date) >= 5 & month(date) <= 10, "cooldry", 
-                          if_else(month(date) <= 4, "hotwet", 
-                                  if_else(month(date) > 10, "hotwet", NA_character_)))
+         abx = as.factor(if_else(abx == 1, "taken", 
+                                 if_else(abx == 0, "nottaken", NA_character_))),
+         
+         ses = as.factor(if_else(ses <= 3, "low", 
+                       if_else(ses > 3 & ses <=15, "high", NA_character_))),
+         
+         nochild = as.factor(if_else(nochild == 1, "1child", "2+child")),
+         
       ) %>%
   select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild, serotype)
 
@@ -50,15 +59,12 @@ statetable.msm(state, pid, data = spn_model)
 
 #initiate transition intensity matrix Q
 spn_Qmatrix <- rbind(c(0.03, 0.12, 0.26),
-                  c(0.26, 0.74, 0.00), 
-                  c(0.15, 0.00, 0.35))
+                     c(0.26, 0.74, 0.00), 
+                     c(0.15, 0.00, 0.35))
 
 rownames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
 colnames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
-
 spn_Qmatrix
-
-#====================================================================
 
 #run the Markov model
 spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
@@ -67,6 +73,42 @@ spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
                                   "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
                 pci = c(60, 120, 180, 240),
                 opt.method = "bobyqa", control = list(maxfun = 1000000))
+
+# #====================================================================
+# #====================================================================
+
+
+# show transition frequency
+spn_model <- arrange(spn_model, pid, dys)
+statetable.msm(state, pid, data = spn_model)
+
+#initiate transition intensity matrix Q
+spn_Qmatrix <- rbind(c(0.03, 0.12, 0.26),
+                     c(0.26, 0.74, 0.00), 
+                     c(0.15, 0.00, 0.35))
+
+rownames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
+colnames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
+spn_Qmatrix
+
+#initiate emission matrix E
+spn_Ematrix <- rbind(c(1.00, 0.00, 0.00),
+                     c(0.10, 0.90, 0.00), 
+                     c(0.10, 0.00, 0.90))
+
+rownames(spn_Ematrix) <- c("SwabNeg", "SwabVT", "SwabNVT")
+colnames(spn_Ematrix) <- c("SwabNeg", "SwabVT", "SwabNVT")
+
+spn_Ematrix
+
+
+#run the hidden Markov model
+spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
+                    qmatrix = spn_Qmatrix,
+                    covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
+                                      "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
+                    pci = c(60, 120, 180, 240),
+                    opt.method = "bobyqa", control = list(maxfun = 1000000))
 
 # #====================================================================
 # #====================================================================
@@ -99,8 +141,6 @@ spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
 # colnames(spn_Qmatrix) <- c("clear", "s3", "s6", "9", "s19", "vt", "nvt")
 # 
 # spn_Qmatrix
-# 
-# #====================================================================
 # 
 # #run the Markov model
 # spn_modelfit <- msm(mstate ~ dys, subject = pid, data = spn_model,

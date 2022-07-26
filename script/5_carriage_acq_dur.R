@@ -22,15 +22,15 @@ pneumo1$Lcarry <- c(modela$L[1,3], modelb$L[1,3]); pneumo1$Ucarry <- c(modela$U[
 
 A <- rbind(pneumo0, pneumo1) %>%
   ggplot() +
-  geom_point(aes(hivst, carry, color = hivst), size = 3, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(hivst, carry, color = hivst), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(hivst,  ymin = Lcarry, ymax = Ucarry, color = hivst), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  ylim(0, 0.2) +
+  ylim(0, 0.3) +
   labs(title = "A", x = "", y = "Daily carriage acquisition probability") + 
   theme(axis.text.y = element_text(face = "bold", size = 10)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = "")) +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.7), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
   
@@ -54,16 +54,16 @@ B <-
   rbind(pneumo0, pneumo1) %>%
   mutate(id = paste0(hivst, sex)) %>%
   ggplot() +
-  geom_point(aes(id, carry, color = hivst, shape = sex), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, carry, color = hivst, shape = sex), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  ylim(0, 0.2) +
+  ylim(0, 0.3) +
   labs(title = "B", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.7), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -87,16 +87,16 @@ C <-
   rbind(pneumo0, pneumo1) %>%
   mutate(id = paste0(hivst, nochild)) %>%
   ggplot() +
-  geom_point(aes(id, carry, color = hivst, shape = nochild), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, carry, color = hivst, shape = nochild), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  ylim(0, 0.2) +
+  ylim(0, 0.3) +
   labs(title = "C", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.7), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -120,16 +120,16 @@ D <-
   rbind(pneumo0, pneumo1) %>%
   mutate(id = paste0(hivst, ses)) %>%
   ggplot() +
-  geom_point(aes(id, carry, color = hivst, shape = ses), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, carry, color = hivst, shape = ses), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  ylim(0, 0.2) +
+  ylim(0, 0.3) +
   labs(title = "D", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.7), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -157,16 +157,16 @@ E <-
   rbind(pneumo0, pneumo1) %>%
   mutate(id = paste0(hivst, agegp)) %>%
   ggplot() +
-  geom_point(aes(id, carry, color = hivst, shape = agegp), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, carry, color = hivst, shape = agegp), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, carry, color = hivst, ymin = Lcarry, ymax = Ucarry), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5, 1)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  ylim(0, 0.2) +
+  ylim(0, 0.3) +
   labs(title = "E", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.7), legend.title = element_text(size = 0)) + 
+  theme(legend.text = element_text(size = 12), legend.position = c(0.8, 0.8), legend.title = element_text(size = 0)) + 
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -188,10 +188,10 @@ pneumo1$Lclear <- c(modela$L[3,1], modelb$L[3,1]); pneumo1$Uclear <- c(modela$U[
 F <- rbind(pneumo0, pneumo1) %>%
   mutate(clearx = 1/clear, Lclearx = 1/Uclear, Uclearx = 1/Lclear) %>%
   ggplot() +
-  geom_point(aes(hivst, clearx, color = hivst), size = 3, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(hivst, clearx, color = hivst), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(hivst,  ymin = Lclearx, ymax = Uclearx, color = hivst), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110), limits = c(0, 130)) + 
+  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110, 150), limits = c(0, 150)) + 
   labs(title = "F", x = "", y = "Carriage duration (days)") + 
   theme(axis.text.y = element_text(face = "bold", size = 10)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
@@ -221,16 +221,16 @@ G <-
   mutate(clearx = 1/clear, Lclearx = 1/Uclear, Uclearx = 1/Lclear) %>%
   mutate(id = paste0(hivst, sex)) %>%
   ggplot() +
-  geom_point(aes(id, clearx, color = hivst, shape = sex), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, clearx, color = hivst, shape = sex), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, clearx, color = hivst, ymin = Lclearx, ymax = Uclearx), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5)) +
   theme_bw(base_size = 14, base_family = 'Lato') + 
-  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110), limits = c(0, 130)) + 
+  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110, 150), limits = c(0, 150)) + 
   labs(title = "G", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.8), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -242,11 +242,11 @@ modelb <- qmatrix.msm(spn_modelfit, covariates = list(hiv = "HIV+ART+", dens = "
 modelc <- qmatrix.msm(spn_modelfit, covariates = list(hiv = "HIV-", dens = "high"), ci = "normal", cl = 0.95)
 modeld <- qmatrix.msm(spn_modelfit, covariates = list(hiv = "HIV+ART+", dens = "high"), ci = "normal", cl = 0.95)
 
-pneumo0 <- data.frame("hivst" = c("VT,HIV-", "VT,HIV+ART+", "VT,HIV-", "VT,HIV+ART+"), "dens" = c("Low carriage density", "Low carriage density", "High carriage density", "High carriage density"))
+pneumo0 <- data.frame("hivst" = c("VT,HIV-", "VT,HIV+ART+", "VT,HIV-", "VT,HIV+ART+"), "dens" = c("Low density", "Low density", "High density", "High density"))
 pneumo0$clear <- c(modela$estimates[2,1], modelb$estimates[2,1], modelc$estimates[2,1], modeld$estimates[2,1])
 pneumo0$Lclear <- c(modela$L[2,1], modelb$L[2,1], modelc$L[2,1], modeld$L[2,1]); pneumo0$Uclear <- c(modela$U[2,1], modelb$U[2,1], modelc$U[2,1], modeld$U[2,1])
 
-pneumo1 <- data.frame("hivst" = c("NVT,HIV-", "NVT,HIV+ART+", "NVT,HIV-", "NVT,HIV+ART+"), "dens" = c("Low carriage density", "Low carriage density", "High carriage density", "High carriage density"))
+pneumo1 <- data.frame("hivst" = c("NVT,HIV-", "NVT,HIV+ART+", "NVT,HIV-", "NVT,HIV+ART+"), "dens" = c("Low density", "Low density", "High density", "High density"))
 pneumo1$clear <- c(modela$estimates[3,1], modelb$estimates[3,1], modelc$estimates[3,1], modeld$estimates[3,1])
 pneumo1$Lclear <- c(modela$L[3,1], modelb$L[3,1], modelc$L[3,1], modeld$L[3,1]); pneumo1$Uclear <- c(modela$U[3,1], modelb$U[3,1], modelc$U[3,1], modeld$U[3,1])
 
@@ -255,16 +255,16 @@ H <-
   mutate(clearx = 1/clear, Lclearx = 1/Uclear, Uclearx = 1/Lclear) %>%
   mutate(id = paste0(hivst, dens)) %>%
   ggplot() +
-  geom_point(aes(id, clearx, color = hivst, shape = dens), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, clearx, color = hivst, shape = dens), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, clearx, color = hivst, ymin = Lclearx, ymax = Uclearx), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5)) +
   theme_bw(base_size = 14, base_family = 'Lato') +
-  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110), limits = c(0, 130)) + 
+  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110, 150), limits = c(0, 150)) + 
   labs(title = "H", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.8), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.65, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) + 
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -276,11 +276,11 @@ modelb <- qmatrix.msm(spn_modelfit, covariates = list(hiv = "HIV+ART+", abx = "t
 modelc <- qmatrix.msm(spn_modelfit, covariates = list(hiv = "HIV-", abx = "nottaken"), ci = "normal", cl = 0.95)
 modeld <- qmatrix.msm(spn_modelfit, covariates = list(hiv = "HIV+ART+", abx = "nottaken"), ci = "normal", cl = 0.95)
 
-pneumo0 <- data.frame("hivst" = c("VT,HIV-", "VT,HIV+ART+", "VT,HIV-", "VT,HIV+ART+"), "abx" = c("Antibiotic use", "Antibiotic use", "No antibiotic use", "No antibiotic use"))
+pneumo0 <- data.frame("hivst" = c("VT,HIV-", "VT,HIV+ART+", "VT,HIV-", "VT,HIV+ART+"), "abx" = c("ABX use", "ABX use", "No ABX", "No ABX"))
 pneumo0$clear <- c(modela$estimates[2,1], modelb$estimates[2,1], modelc$estimates[2,1], modeld$estimates[2,1])
 pneumo0$Lclear <- c(modela$L[2,1], modelb$L[2,1], modelc$L[2,1], modeld$L[2,1]); pneumo0$Uclear <- c(modela$U[2,1], modelb$U[2,1], modelc$U[2,1], modeld$U[2,1])
 
-pneumo1 <- data.frame("hivst" = c("NVT,HIV-", "NVT,HIV+ART+", "NVT,HIV-", "NVT,HIV+ART+"), "abx" = c("Antibiotic use", "Antibiotic use", "No antibiotic use", "No antibiotic use"))
+pneumo1 <- data.frame("hivst" = c("NVT,HIV-", "NVT,HIV+ART+", "NVT,HIV-", "NVT,HIV+ART+"), "abx" = c("ABX use", "ABX use", "No ABX", "No ABX"))
 pneumo1$clear <- c(modela$estimates[3,1], modelb$estimates[3,1], modelc$estimates[3,1], modeld$estimates[3,1])
 pneumo1$Lclear <- c(modela$L[3,1], modelb$L[3,1], modelc$L[3,1], modeld$L[3,1]); pneumo1$Uclear <- c(modela$U[3,1], modelb$U[3,1], modelc$U[3,1], modeld$U[3,1])
 
@@ -289,16 +289,16 @@ I <-
   mutate(clearx = 1/clear, Lclearx = 1/Uclear, Uclearx = 1/Lclear) %>%
   mutate(id = paste0(hivst, abx)) %>%
   ggplot() +
-  geom_point(aes(id, clearx, color = hivst, shape = abx), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, clearx, color = hivst, shape = abx), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, clearx, color = hivst, ymin = Lclearx, ymax = Uclearx), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5)) +
   theme_bw(base_size = 14, base_family = 'Lato') +
-  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110), limits = c(0, 130)) + 
+  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110, 150), limits = c(0, 150)) + 
   labs(title = "I", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.5, 0.8), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) + 
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -327,16 +327,16 @@ J <-
   mutate(clearx = 1/clear, Lclearx = 1/Uclear, Uclearx = 1/Lclear) %>%
   mutate(id = paste0(hivst, agegp)) %>%
   ggplot() +
-  geom_point(aes(id, clearx, color = hivst, shape = agegp), size = 4, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
+  geom_point(aes(id, clearx, color = hivst, shape = agegp), size = 2, stroke = 2, position = position_dodge2(width = 0.5), stat = "identity") +
   geom_errorbar(aes(id, clearx, color = hivst, ymin = Lclearx, ymax = Uclearx), width = 0, size = 1.2, position = position_dodge2(width = 0.5)) +
   scale_shape_manual(values = c(4, 5, 1)) +
   theme_bw(base_size = 14, base_family = 'Lato') +
-  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110), limits = c(0, 130)) + 
+  scale_y_continuous(breaks=c(10, 20, 30, 40, 50, 80, 100, 110, 150), limits = c(0, 150)) + 
   labs(title = "J", x = "", y = "") + 
   theme(axis.text.y = element_text(face = "bold", size = 0)) + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + 
   guides(shape = guide_legend(title = ""), color = "none") +
-  theme(legend.text = element_text(size = 12), legend.position = c(0.7, 0.8), legend.title = element_text(size = 0)) +
+  theme(legend.text = element_text(size = 12), legend.position = c(0.8, 0.8), legend.title = element_text(size = 0)) +
   theme(plot.margin=grid::unit(c(0.5,0,0,0), "mm")) + 
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -344,5 +344,5 @@ J <-
 
 ggsave(here("output", "Fig3_acq_dur.png"),
        plot = ((A | B | C | D | E | plot_layout(ncol = 5, width = c(1,1,1,1,2)))/(F | G | H | I | J | plot_layout(ncol = 5, width = c(1,1,1,1,2)))),
-       width = 15, height = 7, unit="in", dpi = 300)
+       width = 16, height = 8, unit="in", dpi = 300)
 

@@ -26,48 +26,28 @@
 #====================================================================
 
 #retain the convergence dataset for plotting with added variables
-spn_convplot <- import(here("data", "spn_converge.xlsx"))
+spn_convplot <- filter(import(here("data", "spn_converge.xlsx")), chain <=5)
 
 spn_convplot <- 
   spn_convplot %>%
   select(chain,iter,likelihood) %>%
-  mutate(chaincat = if_else(chain == 1, "1 (q12=0.001, q21=0.038)",
-                            if_else(chain == 2,"2 (q12=0.016, q21=0.029)",
-                                    if_else(chain == 3,"3 (q12=0.031, q21=0.022)",
-                                            if_else(chain == 4,"4 (q12=0.046, q21=0.011)",
-                                                    if_else(chain == 5, "5 (q12=0.061, q21=0.002)",
-                                                            if_else(chain == 6,"1 (q13=0.010, q31=0.048)",
-                                                                    if_else(chain == 7,"2 (q13=0.040, q31=0.040)",
-                                                                            if_else(chain == 8,"3 (q13=0.070, q31=0.032)",
-                                                                                    if_else(chain == 9,"4 (q13=0.100, q31=0.024)", "5 (q13=0.130, q31=0.016)"))))))))),
-         status = if_else(chain <=5, "VT steady states", "NVT steady states"),
+  mutate(chaincat = if_else(chain == 1, "1 (q12=0.001, q21=0.038), (q13=0.010, q31=0.048)",
+                            if_else(chain == 2,"2 (q12=0.016, q21=0.029), (q13=0.040, q31=0.040)",
+                                    if_else(chain == 3,"3 (q12=0.031, q21=0.022), (q13=0.070, q31=0.032)",
+                                            if_else(chain == 4,"4 (q12=0.046, q21=0.011), (q13=0.100, q31=0.024)", "5 (q12=0.061, q21=0.002), (q13=0.130, q31=0.016)")))),
          likelihood = likelihood*1000)
 
 #====================================================================
 
 A <-
 spn_convplot %>%
-  filter(status == "VT steady states") %>%
   ggplot(aes(iter, likelihood, color = chaincat)) + 
   geom_line(size = 1) + 
-  labs(title = "(A) VT model steady states", x = "Number of iterations", y = "-2Log-likelihood") + 
+  labs(title = "(A) Model steady states", x = "Number of iterations", y = "-2Log-likelihood") + 
   coord_cartesian(xlim = c(0, 100), ylim = c(1900, 2000)) +
   theme_bw(base_size = 14, base_family = 'Lato') +
   theme(axis.text.x = element_text(face = "bold", size = 10), axis.text.y = element_text(face = "bold", size = 10)) +
-  theme(legend.position = c(0.5,0.7), legend.key.height = unit(1, "line"),legend.key.width = unit(1, "line")) +  
-  guides(color = guide_legend(title = "Chain # (initial intensity)")) +
-  theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
-
-B <-
-spn_convplot %>%
-  filter(status == "NVT steady states") %>%
-  ggplot(aes(iter, likelihood, color = chaincat)) + 
-  geom_line(size = 1) + 
-  labs(title = "(B) NVT model steady states", x = "Number of iterations", y = "") + 
-  coord_cartesian(xlim = c(0, 100), ylim = c(1900, 2000)) +
-  theme_bw(base_size = 14, base_family = 'Lato') +
-  theme(axis.text.x = element_text(face = "bold", size = 10), axis.text.y = element_text(face = "bold", size = 10)) +
-  theme(legend.position = c(0.5,0.7), legend.key.height = unit(1, "line"),legend.key.width = unit(1, "line")) +  
+  theme(legend.position = c(0.5,0.7), legend.key.height = unit(1, "line"),legend.key.width = unit(1, "line"), legend.text = element_text(size = 9)) +  
   guides(color = guide_legend(title = "Chain # (initial intensity)")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
@@ -113,15 +93,17 @@ spn_obsexp %<>% nest(data = c(exp.nNVT, exp.tot)) %>% mutate(CI = map(.x = data,
 spn_obsexp <- 
   spn_obsexp %>%
   select(Time, obs.pS, obs.pS_lci, obs.pS_uci, obs.pVT, obs.pVT_lci, obs.pVT_uci, obs.pNVT, obs.pNVT_lci, obs.pNVT_uci,
-         exp.pS, exp.pS_lci, exp.pS_uci, exp.pVT, exp.pVT_lci, exp.pVT_uci, exp.pNVT, exp.pNVT_lci, exp.pNVT_uci,) %>%
+         exp.pS, exp.pS_lci, exp.pS_uci, exp.pVT, exp.pVT_lci, exp.pVT_uci, exp.pNVT, exp.pNVT_lci, exp.pNVT_uci) %>%
   slice(-1)
 
+spn_obsexp <- spn_obsexp*0.01
+spn_obsexp$Time <- spn_obsexp$Time*100
 #====================================================================
 
 #plot observed and predicted carriage
 cols <- c("Observed vs predicted clearance" = "#0000FF", "Observed vs predicted carriage" = "#FF0000")
 
-C <-
+B <-
 spn_obsexp %>%
   ggplot(aes(Time)) + 
   geom_point(aes(Time+3, obs.pS, color = "Observed vs predicted clearance"), size = 2, shape = 5, stroke = 2) + 
@@ -132,16 +114,16 @@ spn_obsexp %>%
   geom_errorbar(aes(Time, ymin = obs.pVT_lci, ymax = obs.pVT_uci, color = "Observed vs predicted carriage"), width = 0, size = 1) + 
   geom_line(aes(Time, exp.pVT, color = "Observed vs predicted carriage"), size = 1) + 
   geom_ribbon(aes(ymin = exp.pVT_lci, ymax = exp.pVT_uci, color = "Observed vs predicted carriage"), alpha = 0.2, size = 0.1) +
-  labs(title = "(C) VT model fit", x = "Days",y = "Prevalence (%)") + 
+  labs(title = "(B) VT carriage fit", x = "Days",y = "Carriage prevalence") + 
   scale_x_continuous(breaks=c(0, 30, 60, 90,120,150,180,210, 240, 270, 300, 330)) + 
-  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80),) + 
+  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   theme_bw(base_size = 14, base_family = 'Lato') +
   theme(axis.text.x=element_text(face = "bold", size = 10), axis.text.y = element_text(face = "bold", size = 10)) +
   theme(legend.position = c(0.4, 0.85), legend.text = element_text(size = 12),) + 
   guides(color = guide_legend(title = "")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
-D <-
+C <-
 spn_obsexp %>%
   ggplot(aes(Time)) + 
   geom_point(aes(Time+3, obs.pS, color = "Observed vs predicted clearance"), size = 2, shape = 5, stroke = 2) + 
@@ -152,17 +134,17 @@ spn_obsexp %>%
   geom_errorbar(aes(Time, ymin = obs.pNVT_lci, ymax = obs.pNVT_uci, color = "Observed vs predicted carriage"), width = 0, size = 1) + 
   geom_line(aes(Time, exp.pNVT, color = "Observed vs predicted carriage"), size = 1) + 
   geom_ribbon(aes(ymin = exp.pNVT_lci, ymax = exp.pNVT_uci, color = "Observed vs predicted carriage"), alpha = 0.2, size = 0.1) +
-  labs(title = "(D) NVT model fit", x = "Days",y = "") + 
+  labs(title = "(C) NVT carriage fit", x = "Days", y = "Carriage prevalence") + 
   scale_x_continuous(breaks=c(0, 30, 60, 90,120,150,180,210, 240, 270, 300, 330)) + 
-  scale_y_continuous(breaks=c(0, 10, 20, 30, 40, 50, 60, 70, 80),) + 
+  scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   theme_bw(base_size = 14, base_family = 'Lato') +
   theme(axis.text.x=element_text(face = "bold", size = 10), axis.text.y = element_text(face = "bold", size = 10)) +
-  theme(legend.position = c(0.4, 0.85), legend.text = element_text(size = 12),) + 
+  theme(legend.position = c(0.4, 0.85), legend.text = element_text(size = 12)) + 
   guides(color = guide_legend(title = "")) +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
 #====================================================================
 
-ggsave(here("output", "S1_Fig_convergencefit.png"),
-       plot = (A | B) / (C | D),
-       width = 11, height = 10, unit="in", dpi = 300)
+ggsave(here("output", "Fig1_convergencefit.png"),
+       plot = (A | B | C),
+       width = 18, height = 5, unit="in", dpi = 300)
