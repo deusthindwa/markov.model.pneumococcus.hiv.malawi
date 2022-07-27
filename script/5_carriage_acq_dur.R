@@ -346,3 +346,4 @@ ggsave(here("output", "Fig3_acq_dur.png"),
        plot = ((A | B | C | D | E | plot_layout(ncol = 5, width = c(1,1,1,1,2)))/(F | G | H | I | J | plot_layout(ncol = 5, width = c(1,1,1,1,2)))),
        width = 16, height = 8, unit="in", dpi = 300)
 
+rm(list = grep("spn", ls(), value = TRUE, invert = TRUE))

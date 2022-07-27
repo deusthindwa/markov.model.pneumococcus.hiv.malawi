@@ -115,7 +115,7 @@ spn_obsexp %>%
   geom_line(aes(Time, exp.pVT, color = "Observed vs predicted carriage"), size = 1) + 
   geom_ribbon(aes(ymin = exp.pVT_lci, ymax = exp.pVT_uci, color = "Observed vs predicted carriage"), alpha = 0.2, size = 0.1) +
   labs(title = "(B) VT carriage fit", x = "Days",y = "Carriage prevalence") + 
-  scale_x_continuous(breaks=c(0, 30, 60, 90,120,150,180,210, 240, 270, 300, 330)) + 
+  scale_x_continuous(breaks=c(0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330)) + 
   scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   theme_bw(base_size = 14, base_family = 'Lato') +
   theme(axis.text.x=element_text(face = "bold", size = 10), axis.text.y = element_text(face = "bold", size = 10)) +
@@ -135,7 +135,7 @@ spn_obsexp %>%
   geom_line(aes(Time, exp.pNVT, color = "Observed vs predicted carriage"), size = 1) + 
   geom_ribbon(aes(ymin = exp.pNVT_lci, ymax = exp.pNVT_uci, color = "Observed vs predicted carriage"), alpha = 0.2, size = 0.1) +
   labs(title = "(C) NVT carriage fit", x = "Days", y = "Carriage prevalence") + 
-  scale_x_continuous(breaks=c(0, 30, 60, 90,120,150,180,210, 240, 270, 300, 330)) + 
+  scale_x_continuous(breaks=c(0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330)) + 
   scale_y_continuous(limit = c(0, 1), breaks = seq(0, 1, 0.2), labels = scales::percent_format(accuracy = 1)) + 
   theme_bw(base_size = 14, base_family = 'Lato') +
   theme(axis.text.x=element_text(face = "bold", size = 10), axis.text.y = element_text(face = "bold", size = 10)) +

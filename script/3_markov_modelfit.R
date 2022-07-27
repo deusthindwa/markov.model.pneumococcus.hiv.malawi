@@ -24,9 +24,8 @@ spn_model <-
          
          hiv = as.factor(hiv),
          
-         artdur = as.factor(if_else(hiv == "HIV-", "none",
-                                    if_else(artdur <=3, "short",  
-                                            if_else(artdur > 3 & artdur <= 25, "long", NA_character_)))),
+         artdur = as.factor(if_else(artdur <=3, "short", 
+                                    if_else(artdur > 3 & artdur <= 25, "long", NA_character_))),
          
          cd4 = as.factor(if_else(cd4 <= 200, "low", #categorised similarly for HIVpos and HIVneg?
                        if_else(cd4 > 200 & cd4 <= 500, "medium", 
@@ -48,9 +47,25 @@ spn_model <-
          
          nochild = as.factor(if_else(nochild == 1, "1child", "2+child")),
          
+         pcicov = as.integer(if_else(dys <= 60, 1L,
+                                    if_else(dys > 60 & dys <= 120, 2L,
+                                            if_else(dys > 120 & dys <= 180, 3L,
+                                                    if_else(dys > 180 & dys <= 240, 4L, 5L)))))
+         
+         # mstate = if_else(is.na(serotype), 1L,
+         #                  if_else(serotype == "3", 2L,
+         #                          if_else(serotype == "6A", 3L,
+         #                                  if_else(serotype == "6B", 3L,
+         #                                          if_else(serotype == "9V", 4L,
+         #                                                  if_else(serotype == "19A", 5L,
+         #                                                          if_else(serotype == "19F", 5L,
+         #                                                                  if_else(serotype %in% c("4", "5", "7F", "14", "18C", "23F"), 6L, 7L)))))))))
+         
       ) %>%
-  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild, serotype)
+  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild, serotype, pcicov)
 
+#====================================================================
+# CONTINUOUS-TIME TIME-NONHOMOGENEOUS MARKOV MODEL
 #====================================================================
 
 # show transition frequency
@@ -69,62 +84,18 @@ spn_Qmatrix
 #run the Markov model
 spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
                 qmatrix = spn_Qmatrix,
-                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
-                                  "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
-                pci = c(60, 120, 180, 240),
+                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses + pcicov, "2-1" =~ hiv + agegp + sex + dens + abx, 
+                                  "1-3" = ~ hiv + agegp + sex + nochild + ses + pcicov, "3-1" =~ hiv + agegp + sex + dens + abx),
+                #pci = c(60, 120, 180, 240),
+                #pci = c(30, 60, 90, 120, 130, 180, 210, 240),
+                pci = c(180),
                 opt.method = "bobyqa", control = list(maxfun = 1000000))
 
 # #====================================================================
+# CONTINUOUS-TIME TIME-NONHOMOGENEOUS MARKOV MODEL (VT SEROTYPE)
 # #====================================================================
-
-
+# 
 # show transition frequency
-spn_model <- arrange(spn_model, pid, dys)
-statetable.msm(state, pid, data = spn_model)
-
-#initiate transition intensity matrix Q
-spn_Qmatrix <- rbind(c(0.03, 0.12, 0.26),
-                     c(0.26, 0.74, 0.00), 
-                     c(0.15, 0.00, 0.35))
-
-rownames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
-colnames(spn_Qmatrix) <- c("Clear", "VT_carry", "NVT_carry")
-spn_Qmatrix
-
-#initiate emission matrix E
-spn_Ematrix <- rbind(c(1.00, 0.00, 0.00),
-                     c(0.10, 0.90, 0.00), 
-                     c(0.10, 0.00, 0.90))
-
-rownames(spn_Ematrix) <- c("SwabNeg", "SwabVT", "SwabNVT")
-colnames(spn_Ematrix) <- c("SwabNeg", "SwabVT", "SwabNVT")
-
-spn_Ematrix
-
-
-#run the hidden Markov model
-spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
-                    qmatrix = spn_Qmatrix,
-                    covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
-                                      "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
-                    pci = c(60, 120, 180, 240),
-                    opt.method = "bobyqa", control = list(maxfun = 1000000))
-
-# #====================================================================
-# #====================================================================
-# 
-# spn_model <- 
-#   spn_model %>%
-#   mutate(mstate = if_else(is.na(serotype), 1L,
-#                           if_else(serotype == "3", 2L,
-#                                   if_else(serotype == "6A", 3L,
-#                                           if_else(serotype == "6B", 3L,
-#                                                   if_else(serotype == "9V", 4L,
-#                                                           if_else(serotype == "19A", 5L,
-#                                                                   if_else(serotype == "19F", 5L,
-#                                                                           if_else(serotype %in% c("4", "5", "7F", "14", "18C", "23F"), 6L, 7L)))))))))
-# 
-# # show transition frequency
 # spn_model <- arrange(spn_model, pid, dys)
 # statetable.msm(mstate, pid, data = spn_model)
 # 
@@ -143,7 +114,7 @@ spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
 # spn_Qmatrix
 # 
 # #run the Markov model
-# spn_modelfit <- msm(mstate ~ dys, subject = pid, data = spn_model,
+# spn_modelfitS <- msm(mstate ~ dys, subject = pid, data = spn_model,
 #                     qmatrix = spn_Qmatrix,
 #                     covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
 #                                       "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
