@@ -3,9 +3,6 @@
 #Continuous-time time-homogeneous hidden Markov modelling study, PhD chapter 1.
 #20/9/2019 - 10/6/2020
 
-#hazard ratios for pneumococcal acquisition/clearance rates (Table 1)
-#hazard.msm(spn_modelfit, hazard.scale = 1, cl = 0.95)
-
 #====================================================================
 
 #acquisition probability by HIV status

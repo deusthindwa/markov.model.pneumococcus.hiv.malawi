@@ -45,12 +45,7 @@ spn_model <-
          ses = as.factor(if_else(ses <= 3, "low", 
                        if_else(ses > 3 & ses <=15, "high", NA_character_))),
          
-         nochild = as.factor(if_else(nochild == 1, "1child", "2+child")),
-         
-         pcicov = as.integer(if_else(dys <= 60, 1L,
-                                    if_else(dys > 60 & dys <= 120, 2L,
-                                            if_else(dys > 120 & dys <= 180, 3L,
-                                                    if_else(dys > 180 & dys <= 240, 4L, 5L)))))
+         nochild = as.factor(if_else(nochild == 1, "1child", "2+child"))
          
          # mstate = if_else(is.na(serotype), 1L,
          #                  if_else(serotype == "3", 2L,
@@ -62,7 +57,7 @@ spn_model <-
          #                                                                  if_else(serotype %in% c("4", "5", "7F", "14", "18C", "23F"), 6L, 7L)))))))))
          
       ) %>%
-  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild, serotype, pcicov)
+  select(pid, dys, vday, state, sex, agegp, hiv, artdur, cd4, dens, season, abx, ses, nochild, serotype)
 
 #====================================================================
 # CONTINUOUS-TIME TIME-NONHOMOGENEOUS MARKOV MODEL
@@ -84,8 +79,8 @@ spn_Qmatrix
 #run the Markov model
 spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
                 qmatrix = spn_Qmatrix,
-                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses + pcicov, "2-1" =~ hiv + agegp + sex + dens + abx, 
-                                  "1-3" = ~ hiv + agegp + sex + nochild + ses + pcicov, "3-1" =~ hiv + agegp + sex + dens + abx),
+                covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses, "2-1" =~ hiv + agegp + sex + dens + abx, 
+                                  "1-3" = ~ hiv + agegp + sex + nochild + ses, "3-1" =~ hiv + agegp + sex + dens + abx),
                 pci = c(60, 120, 180, 240),
                 opt.method = "bobyqa", control = list(maxfun = 1000000))
 
