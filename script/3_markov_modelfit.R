@@ -86,9 +86,7 @@ spn_modelfit <- msm(state ~ dys, subject = pid, data = spn_model,
                 qmatrix = spn_Qmatrix,
                 covariates = list("1-2" = ~ hiv + agegp + sex + nochild + ses + pcicov, "2-1" =~ hiv + agegp + sex + dens + abx, 
                                   "1-3" = ~ hiv + agegp + sex + nochild + ses + pcicov, "3-1" =~ hiv + agegp + sex + dens + abx),
-                #pci = c(60, 120, 180, 240),
-                #pci = c(30, 60, 90, 120, 130, 180, 210, 240),
-                pci = c(180),
+                pci = c(60, 120, 180, 240),
                 opt.method = "bobyqa", control = list(maxfun = 1000000))
 
 # #====================================================================
