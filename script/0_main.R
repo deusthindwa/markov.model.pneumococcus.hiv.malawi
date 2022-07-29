@@ -5,10 +5,8 @@
 #====================================================================
 
 #load packages
-pacman::p_load(char = c("lubridate","gtsummary", "tidyverse", "dplyr", "here", "rio", "scales", "boot", 
-                        "magrittr",  "mvtnorm", "zoo", "patchwork", "mgcv", "PropCIs", "writexl", 
-                        "reshape2", "growthcurver","purrr", "msm", "minqa", "ggridges", "msm", "lmtest", "timetk", "ggbreak",
-                        "plotrix", "ggpubr"))
+pacman::p_load(char = c("lubridate", "tidyverse", "dplyr", "here", "rio", "scales", "boot", "magrittr",  "mvtnorm", "zoo", "patchwork", 
+                        "PropCIs", "reshape2","purrr", "msm", "minqa", "ggridges", "timetk", "ggbreak", "ggpubr", "gridExtra"))
 
 #====================================================================
 
@@ -26,6 +24,9 @@ source(here("script", "4_model_convergence.R"))
 
 #use SIS Markov model to estimate acquisition and clearance of carriage 
 source(here("script", "5_carriage_acq_dur.R"))
+
+#use SIS Markov model to estimate hazard ratios comparing covariate levels
+source(here("script", "6_carriage_hazard_ratios.R"))
 
 #use SIS Markov model to estimate the number of carriage episodes 
 source(here("script", "6_carriage_episodes.R"))
